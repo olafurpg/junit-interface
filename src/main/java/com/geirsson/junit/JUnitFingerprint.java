@@ -1,4 +1,4 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 public class JUnitFingerprint extends AbstractAnnotatedFingerprint {
   @Override

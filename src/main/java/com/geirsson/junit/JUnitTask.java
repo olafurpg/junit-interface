@@ -1,11 +1,15 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import junit.framework.TestCase;
 import org.junit.experimental.categories.Categories;
+import org.junit.runner.Computer;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.RunWith;
+import org.junit.runner.Runner;
+import org.junit.runners.model.RunnerBuilder;
+
 import sbt.testing.*;
 
 import java.lang.annotation.Annotation;
@@ -44,11 +48,14 @@ final class JUnitTask implements Task {
     if (runner.runListener != null) ju.addListener(runner.runListener);
 
     Map<String, Object> oldprops = settings.overrideSystemProperties();
+    ScalatestComputer computer = new ScalatestComputer(runner.testClassLoader);
+
     try {
       try {
         Class<?> cl = runner.testClassLoader.loadClass(testClassName);
-        if(shouldRun(fingerprint, cl, settings)) {
-          Request request = Request.classes(cl);
+        boolean isRun = shouldRun(computer, fingerprint, cl, settings);
+        if(isRun) {
+          Request request = Request.classes(computer, cl);
           if(settings.globPatterns.size() > 0) {
             request = new SilentFilterRequest(request, new GlobFilter(settings, settings.globPatterns));
           }
@@ -71,7 +78,8 @@ final class JUnitTask implements Task {
     return new Task[0]; // junit tests do not nest
   }
 
-  private boolean shouldRun(Fingerprint fingerprint, Class<?> clazz, RunSettings settings) {
+
+  private boolean shouldRun(ScalatestComputer computer, Fingerprint fingerprint, Class<?> clazz, RunSettings settings) {
     if(JUNIT_FP.equals(fingerprint)) {
       // Ignore classes which are matched by the other fingerprints
       if(TestCase.class.isAssignableFrom(clazz)) {
@@ -81,6 +89,9 @@ final class JUnitTask implements Task {
         if(a.annotationType().equals(RunWith.class)) return false;
       }
       return true;
+    } else if (computer.isScalatestSuite(clazz)) {
+      // Skip when the fingerprint is "ScalatestFingerprint" and the test suite has `@RunWith()`
+      return ScalatestFingerprint.isScalatest(fingerprint);
     } else {
       RunWith rw = clazz.getAnnotation(RunWith.class);
       if(rw != null) {

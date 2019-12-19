@@ -1,12 +1,12 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
-import static com.novocode.junit.Ansi.ENAME1;
-import static com.novocode.junit.Ansi.ENAME2;
-import static com.novocode.junit.Ansi.ENAME3;
-import static com.novocode.junit.Ansi.NNAME1;
-import static com.novocode.junit.Ansi.NNAME2;
-import static com.novocode.junit.Ansi.NNAME3;
-import static com.novocode.junit.Ansi.c;
+import static com.geirsson.junit.Ansi.ENAME1;
+import static com.geirsson.junit.Ansi.ENAME2;
+import static com.geirsson.junit.Ansi.ENAME3;
+import static com.geirsson.junit.Ansi.NNAME1;
+import static com.geirsson.junit.Ansi.NNAME2;
+import static com.geirsson.junit.Ansi.NNAME3;
+import static com.geirsson.junit.Ansi.c;
 
 import java.lang.reflect.Method;
 import java.util.*;

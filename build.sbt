@@ -1,7 +1,7 @@
 name := "junit-interface"
 
 organization := "com.geirsson"
-version := "0.12-SNAPSHOT"
+version := "0.11.0-scalatest"
 
 autoScalaLibrary := false
 crossPaths := false

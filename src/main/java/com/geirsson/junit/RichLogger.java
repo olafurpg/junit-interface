@@ -1,8 +1,8 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import java.util.Stack;
 import sbt.testing.Logger;
-import static com.novocode.junit.Ansi.*;
+import static com.geirsson.junit.Ansi.*;
 
 
 final class RichLogger
