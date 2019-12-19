@@ -1,6 +1,6 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +14,7 @@ import sbt.testing.EventHandler;
 import sbt.testing.Fingerprint;
 import sbt.testing.Status;
 
-import static com.novocode.junit.Ansi.*;
+import static com.geirsson.junit.Ansi.*;
 
 
 final class EventDispatcher extends RunListener
@@ -77,6 +77,13 @@ final class EventDispatcher extends RunListener
   @Override
   public void testFailure(final Failure failure)
   {
+    if (failure.getDescription() != null && failure.getDescription().getClassName() != null) {
+      trimStackTrace(
+          failure.getException(),
+          "java.lang.Thread",
+          failure.getDescription().getClassName()
+      );
+    }
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Failure) {
       void logTo(RichLogger logger) {
@@ -84,6 +91,28 @@ final class EventDispatcher extends RunListener
       }
     });
   }
+
+  // Removes stack trace elements that reference the reflective invocation in TestLauncher.
+  private static void trimStackTrace(Throwable ex, String fromClassName, String toClassName) {
+    Throwable cause = ex;
+    while (cause != null) {
+      StackTraceElement[] stackTrace = cause.getStackTrace();
+      int end = stackTrace.length - 1;
+      StackTraceElement last = stackTrace[end];
+      if (last.getClassName().equals(fromClassName)) {
+        for (int i = 0; end >= 0; end--) {
+          StackTraceElement e = stackTrace[end];
+          if (e.getClassName().equals(toClassName)) {
+            break;
+          }
+        }
+        StackTraceElement[] newStackTrace = Arrays.copyOfRange(stackTrace, 0, end + 1);
+        cause.setStackTrace(newStackTrace);
+      }
+      cause = cause.getCause();
+    }
+  }
+
 
   @Override
   public void testFinished(Description desc)
@@ -148,6 +177,7 @@ final class EventDispatcher extends RunListener
 
   void testExecutionFailed(String testName, Throwable err)
   {
+    System.out.println("ERR: " + err);
     post(new Event(Ansi.c(testName, Ansi.ERRMSG), settings.buildErrorMessage(err), Status.Error, 0l, err) {
       void logTo(RichLogger logger) {
         logger.error("Execution of test "+ansiName+" failed: "+ansiMsg, error);

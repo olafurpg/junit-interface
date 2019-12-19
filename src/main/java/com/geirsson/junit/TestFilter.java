@@ -1,5 +1,5 @@
 // Mostly copied from http://stackoverflow.com/questions/1230706/running-a-subset-of-junit-test-methods/1236782#1236782
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import java.util.HashSet;
 import java.util.regex.Pattern;

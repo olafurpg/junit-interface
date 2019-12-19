@@ -1,4 +1,4 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;

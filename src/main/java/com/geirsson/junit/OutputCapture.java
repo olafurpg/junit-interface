@@ -1,4 +1,4 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,8 +1,8 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import sbt.testing.*;
 
-import static com.novocode.junit.Ansi.*;
+import static com.geirsson.junit.Ansi.*;
 
 abstract class AbstractEvent implements Event
 {

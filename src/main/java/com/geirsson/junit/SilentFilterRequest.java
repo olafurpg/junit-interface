@@ -1,4 +1,4 @@
-package com.novocode.junit;
+package com.geirsson.junit;
 
 import org.junit.runner.Request;
 import org.junit.runner.Runner;
