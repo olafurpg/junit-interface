@@ -1,6 +1,6 @@
 name := "junit-interface"
 
-organization := "com.novocode"
+organization := "com.geirsson"
 version := "0.12-SNAPSHOT"
 
 autoScalaLibrary := false
@@ -9,6 +9,7 @@ sbtPlugin := false
 
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
+  "org.pantsbuild" % "junit-runner" % "1.0.28",
   "org.scala-sbt" % "test-interface" % "1.0"
 )
 
