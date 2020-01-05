@@ -14,7 +14,7 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    version := "0.11.2-scalatest",
+    version := "0.11.2",
     scalaVersion := "2.12.10"
   )
 )
