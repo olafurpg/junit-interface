@@ -1,11 +1,17 @@
 package com.geirsson.junit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.runner.notification.RunListener;
+
 import sbt.testing.Runner;
 import sbt.testing.Task;
 import sbt.testing.TaskDef;
-
-import java.util.*;
 
 
 final class JUnitRunner implements Runner {
@@ -18,11 +24,14 @@ final class JUnitRunner implements Runner {
   final ClassLoader testClassLoader;
   final RunListener runListener;
   final RunStatistics runStatistics;
+  final CustomRunners customRunners;
 
-  JUnitRunner(String[] args, String[] remoteArgs, ClassLoader testClassLoader) {
+  JUnitRunner(String[] args, String[] remoteArgs, ClassLoader testClassLoader, CustomRunners customRunners) {
+
     this.args = args;
     this.remoteArgs = remoteArgs;
     this.testClassLoader = testClassLoader;
+    this.customRunners = customRunners;
 
     boolean quiet = false, nocolor = false, decodeScalaNames = true,
         logAssert = true, logExceptionClass = true, useSbtLoggers = false;
@@ -78,7 +87,7 @@ final class JUnitRunner implements Runner {
   @Override
   public Task[] tasks(TaskDef[] taskDefs) {
     used = true;
-    ScalatestComputer computer = new ScalatestComputer(testClassLoader);
+    JUnitComputer computer = new JUnitComputer(testClassLoader, customRunners);
     int length = taskDefs.length;
     List<Task> tasks = new ArrayList<>(taskDefs.length);
     for (int i = 0; i < length; i++) {
@@ -90,10 +99,10 @@ final class JUnitRunner implements Runner {
     return tasks.toArray(new Task[0]);
   }
 
-  private boolean shouldRun(ScalatestComputer computer, TaskDef taskDef) {
+  private boolean shouldRun(JUnitComputer computer, TaskDef taskDef) {
     try {
       Class<?> cls = testClassLoader.loadClass(taskDef.fullyQualifiedName());
-      return !computer.isScalatestSuite(cls) || ScalatestFingerprint.isScalatest(taskDef.fingerprint());
+      return !computer.customRunner(cls).isPresent() || customRunners.matchesFingerprint(taskDef.fingerprint());
     } catch (ClassNotFoundException e) {
       return false;
     }

@@ -4,14 +4,12 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatestplus.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class ScalatestSuite extends FunSuite {
   test("basic") {
     println("Hello world!")
   }
-  test("fail") {
-    val x = 42;
-    val y = 53
-    assert(x == y, "foo")
+  test("listener should never stop listening to awesome music") {
+    ???
+//    println("fail")
   }
 }

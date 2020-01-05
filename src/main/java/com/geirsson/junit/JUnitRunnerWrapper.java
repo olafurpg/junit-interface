@@ -7,10 +7,10 @@ import org.junit.runner.manipulation.Filterable;
 import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.RunNotifier;
 
-class ScalatestJUnitRunnerWrapper extends Runner implements Filterable {
+class JUnitRunnerWrapper extends Runner implements Filterable {
     private final Runner delegate;
 
-    ScalatestJUnitRunnerWrapper(Runner delegate) {
+    JUnitRunnerWrapper(Runner delegate) {
       this.delegate = delegate;
     }
 

@@ -113,17 +113,7 @@ class RunSettings {
     if(t == null) return "null";
     if(!logExceptionClass || (!logAssert && (t instanceof AssertionError)))  return t.getMessage();
     StringBuilder b = new StringBuilder();
-
-    String cn = decodeName(t.getClass().getName());
-    int pos1 = cn.indexOf('$');
-    int pos2 = pos1 == -1 ? cn.lastIndexOf('.') : cn.lastIndexOf('.', pos1);
-    if(pos2 == -1) b.append(c(cn, c1));
-    else {
-      b.append(cn.substring(0, pos2));
-      b.append('.');
-      b.append(c(cn.substring(pos2+1), c1));
-    }
-
+    b.append(decodeName(t.getClass().getName()));
     b.append(": ").append(t.getMessage());
     return b.toString();
   }
@@ -138,17 +128,8 @@ class RunSettings {
 
   private String buildColoredName(Description desc, String c1, String c2, String c3) {
     StringBuilder b = new StringBuilder();
-    
     String cn = decodeName(desc.getClassName());
-    int pos1 = cn.indexOf('$');
-    int pos2 = pos1 == -1 ? cn.lastIndexOf('.') : cn.lastIndexOf('.', pos1);
-    if(pos2 == -1) b.append(c(cn, c1));
-    else {
-      b.append(cn.substring(0, pos2));
-      b.append('.');
-      b.append(c(cn.substring(pos2+1), c1));
-    }
-
+    b.append(c(cn, c1));
     String m = desc.getMethodName();
     if(m != null) {
       b.append('.');

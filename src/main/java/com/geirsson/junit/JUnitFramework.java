@@ -1,25 +1,17 @@
 package com.geirsson.junit;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
-import sbt.testing.EventHandler;
 import sbt.testing.Fingerprint;
 import sbt.testing.Framework;
-import sbt.testing.Logger;
-import sbt.testing.Runner;
-import sbt.testing.SubclassFingerprint;
-import sbt.testing.Task;
-import sbt.testing.TaskDef;
 
 
-public final class JUnitFramework implements Framework
+public class JUnitFramework implements Framework
 {
-  private static final Fingerprint[] FINGERPRINTS = new Fingerprint[] {
+  private static Fingerprint[] FINGERPRINTS = new Fingerprint[] {
       new RunWithFingerprint(),
       new JUnitFingerprint(),
-      new JUnit3Fingerprint(),
-      new ScalatestFingerprint()
+      new JUnit3Fingerprint()
   };
 
   @Override
@@ -27,11 +19,21 @@ public final class JUnitFramework implements Framework
 
   @Override
   public sbt.testing.Fingerprint[] fingerprints() {
-    return FINGERPRINTS;
+    CustomRunners customRunners = customRunners();
+    if (customRunners.isEmpty()) return FINGERPRINTS;
+    Fingerprint[] result = new Fingerprint[FINGERPRINTS.length + customRunners.runners.size()];
+    System.arraycopy(FINGERPRINTS, 0, result, 0, FINGERPRINTS.length);
+    CustomFingerprint[] customFingerprints = customRunners.runners.toArray(new CustomFingerprint[0]);
+    System.arraycopy(customFingerprints, 0, result, FINGERPRINTS.length, customFingerprints.length);
+    return result;
+  }
+
+  public CustomRunners customRunners() {
+    return CustomRunners.of();
   }
 
   @Override
   public sbt.testing.Runner runner(String[] args, String[] remoteArgs, ClassLoader testClassLoader) {
-    return new JUnitRunner(args, remoteArgs, testClassLoader);
+    return new JUnitRunner(args, remoteArgs, testClassLoader, customRunners());
   }
 }

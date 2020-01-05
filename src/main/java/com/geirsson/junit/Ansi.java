@@ -60,6 +60,6 @@ public class Ansi {
   public static final String ENAME3 = LIGHT_YELLOW;
   public static final String FAILURE1 = LIGHT_RED;
   public static final String FAILURE2 = LIGHT_RED;
-  public static final String TESTFILE1 = LIGHT_MAGENTA;
-  public static final String TESTFILE2 = LIGHT_YELLOW;
+  public static final String BOLD = HIGH_INTENSITY;
+  public static final String FAINT = LOW_INTESITY;
 }

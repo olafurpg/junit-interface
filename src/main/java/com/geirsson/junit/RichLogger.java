@@ -1,6 +1,14 @@
 package com.geirsson.junit;
 
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+
 import sbt.testing.Logger;
 import static com.geirsson.junit.Ansi.*;
 
@@ -9,13 +17,16 @@ final class RichLogger
 {
   private final Logger[] loggers;
   private final RunSettings settings;
+  private final JUnitRunner runner;
   /* The top element is the test class of the currently executing test */
   private final Stack<String> currentTestClassName = new Stack<String>();
+  private final Map<String, Boolean> highlightedCache = new HashMap<>();
 
-  RichLogger(Logger[] loggers, RunSettings settings, String testClassName)
+  RichLogger(Logger[] loggers, RunSettings settings, String testClassName, JUnitRunner runner)
   {
     this.loggers = loggers;
     this.settings = settings;
+    this.runner = runner;
     currentTestClassName.push(testClassName);
   }
 
@@ -89,7 +100,9 @@ final class RichLogger
     int top = 0;
     for(int i=top; i<=m; i++)
     {
-      if(trace[i].toString().startsWith("org.junit.") || trace[i].toString().startsWith("org.hamcrest."))
+      if(trace[i].toString().startsWith("org.junit.") ||
+          trace[i].toString().startsWith("org.hamcrest.") ||
+          trace[i].toString().startsWith("org.scalatest."))
       {
         if(i == top) top++;
         else
@@ -105,7 +118,10 @@ final class RichLogger
         }
       }
     }
-    for(int i=top; i<=m; i++) error("    at " + stackTraceElementToString(trace[i], testClassName, testFileName));
+    for(int i=top; i<=m; i++) {
+      if (!trace[i].getClassName().startsWith("scala.runtime."))
+        error(stackTraceElementToString(trace[i], testClassName, testFileName));
+    }
     if(m0 != m)
     {
       // skip junit-related frames
@@ -143,25 +159,43 @@ final class RichLogger
     return null;
   }
 
+  private boolean isHighlightedCached(String className) {
+    return highlightedCache.computeIfAbsent(className, name -> isHighlighted(name));
+  }
+
+  private boolean isHighlighted(String className) {
+    try {
+      int dot = className.lastIndexOf('.');
+      String classfile = className.substring(0, dot + 1).replace('.','/');
+      URL resource = runner.testClassLoader.getResource(classfile);
+      return resource.getProtocol().equals("file");
+    } catch (Exception ex) {
+      return false;
+    }
+  }
+
   private String stackTraceElementToString(StackTraceElement e, String testClassName, String testFileName)
   {
     boolean highlight = settings.color && (
         testClassName.equals(e.getClassName()) ||
-        (testFileName != null && testFileName.equals(e.getFileName()))
+        (testFileName != null && testFileName.equals(e.getFileName())) ||
+        isHighlightedCached(e.getClassName())
       );
+    String color = highlight ? BOLD : FAINT;
     StringBuilder b = new StringBuilder();
-    b.append(settings.decodeName(e.getClassName() + '.' + e.getMethodName()));
-    b.append('(');
+    b.append(c("    at ", color));
+    b.append(c(settings.decodeName(e.getClassName() + '.' + e.getMethodName()) , color));
+    b.append(c("(", color));
 
-    if(e.isNativeMethod()) b.append(c("Native Method", highlight ? TESTFILE2 : null));
-    else if(e.getFileName() == null) b.append(c("Unknown Source", highlight ? TESTFILE2 : null));
+    if(e.isNativeMethod()) b.append(c("Native Method", color));
+    else if(e.getFileName() == null) b.append(c("Unknown Source", color));
     else
     {
-      b.append(c(e.getFileName(), highlight ? TESTFILE1 : null));
+      b.append(c(e.getFileName(), color));
       if(e.getLineNumber() >= 0)
-        b.append(':').append(c(String.valueOf(e.getLineNumber()), highlight ? TESTFILE2 : null));
+        b.append(':').append(c(String.valueOf(e.getLineNumber()), color));
     }
-    return b.append(')').toString();
+    return b.append(c(")", color)).toString();
   }
 
 }

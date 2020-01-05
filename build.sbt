@@ -14,7 +14,7 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    version := "0.11.1-scalatest",
+    version := "0.11.2-scalatest",
     scalaVersion := "2.12.10"
   )
 )
@@ -43,7 +43,7 @@ lazy val interface = project
 lazy val tests = project
   .dependsOn(interface)
   .settings(
-    testFrameworks := List(new TestFramework("com.geirsson.junit.JUnitFramework")),
+    testFrameworks := List(new TestFramework("com.geirsson.junit.PantsFramework")),
     classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     libraryDependencies ++= List(
       "org.scalatest" %% "scalatest" % "3.0.8",

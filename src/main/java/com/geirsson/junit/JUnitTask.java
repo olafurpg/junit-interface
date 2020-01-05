@@ -1,16 +1,22 @@
 package com.geirsson.junit;
 
-import junit.framework.TestCase;
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.experimental.categories.Categories;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.RunWith;
 
-import sbt.testing.*;
-
-import java.lang.annotation.Annotation;
-import java.util.*;
+import junit.framework.TestCase;
+import sbt.testing.EventHandler;
+import sbt.testing.Fingerprint;
+import sbt.testing.Logger;
+import sbt.testing.Task;
+import sbt.testing.TaskDef;
 
 final class JUnitTask implements Task {
   private static final Fingerprint JUNIT_FP = new JUnitFingerprint();
@@ -18,9 +24,9 @@ final class JUnitTask implements Task {
   private final JUnitRunner runner;
   private final RunSettings settings;
   private final TaskDef taskDef;
-  private final ScalatestComputer computer;
+  private final JUnitComputer computer;
 
-  public JUnitTask(JUnitRunner runner, RunSettings settings, TaskDef taskDef, ScalatestComputer computer) {
+  public JUnitTask(JUnitRunner runner, RunSettings settings, TaskDef taskDef, JUnitComputer computer) {
     this.runner = runner;
     this.settings = settings;
     this.taskDef = taskDef;
@@ -40,7 +46,7 @@ final class JUnitTask implements Task {
     Fingerprint fingerprint = taskDef.fingerprint();
     String testClassName = taskDef.fullyQualifiedName();
     Description taskDescription = Description.createSuiteDescription(testClassName);
-    RichLogger logger = new RichLogger(loggers, settings, testClassName);
+    RichLogger logger = new RichLogger(loggers, settings, testClassName, runner);
     EventDispatcher ed = new EventDispatcher(logger, eventHandler, settings, fingerprint, taskDescription, runner.runStatistics);
     JUnitCore ju = new JUnitCore();
     ju.addListener(ed);
