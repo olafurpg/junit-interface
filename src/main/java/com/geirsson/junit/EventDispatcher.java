@@ -44,12 +44,12 @@ final class EventDispatcher extends RunListener
     Event(String name, String message, Status status, Long duration, Throwable error) {
       super(name, message, status, fingerprint, duration, error);
     }
-    String durationSuffix() { return ", took " + durationToString(); }
+    String durationSuffix() { return " " + durationToString(); }
   }
 
   private abstract class ErrorEvent extends Event {
     ErrorEvent(Failure failure, Status status) {
-      super(settings.buildErrorName(failure.getDescription()),
+      super(settings.buildErrorName(failure.getDescription(), status),
             settings.buildErrorMessage(failure.getException()),
             status,
             elapsedTime(failure.getDescription()),
@@ -59,7 +59,7 @@ final class EventDispatcher extends RunListener
 
   private abstract class InfoEvent extends Event {
     InfoEvent(Description desc, Status status) {
-      super(settings.buildInfoName(desc), null, status, elapsedTime(desc), null);
+      super(settings.buildInfoName(desc, status), null, status, elapsedTime(desc), null);
     }
   }
 
@@ -87,7 +87,7 @@ final class EventDispatcher extends RunListener
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Failure) {
       void logTo(RichLogger logger) {
-        logger.error("Test "+ansiName+" failed: "+ansiMsg + durationSuffix(), error);
+        logger.error( settings.buildTestResult(false) + " "+ansiName+" "+ durationSuffix() + " " + ansiMsg, error);
       }
     });
   }
@@ -120,7 +120,7 @@ final class EventDispatcher extends RunListener
     uncapture(false);
     postIfFirst(new InfoEvent(desc, Status.Success) {
       void logTo(RichLogger logger) {
-        debugOrInfo("Test "+ansiName+" finished" + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
+        debugOrInfo(settings.buildTestResult(true) + " "+ansiName + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
       }
     });
     logger.popCurrentTestClassName();
@@ -187,8 +187,8 @@ final class EventDispatcher extends RunListener
 
   private void postIfFirst(AbstractEvent e)
   {
-    e.logTo(logger);
     if(reported.add(e.fullyQualifiedName())) {
+      e.logTo(logger);
       runStatistics.captureStats(e);
       handler.handle(e);
     }
@@ -223,7 +223,7 @@ final class EventDispatcher extends RunListener
 
   private void debugOrInfo(String msg, RunSettings.Verbosity atVerbosity)
   {
-    if(atVerbosity.ordinal() <= settings.verbosity.ordinal()) logger.info(msg);
+    if(atVerbosity.ordinal() >= settings.verbosity.ordinal()) logger.info(msg);
     else logger.debug(msg);
   }
 }

@@ -14,7 +14,8 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    version := "0.11.1-scalatest"
+    version := "0.11.1-scalatest",
+    scalaVersion := "2.12.10"
   )
 )
 lazy val interface = project
@@ -36,6 +37,17 @@ lazy val interface = project
       s"-Dplugin.version=${version.value}",
       "-Xmx256m"
     ),
-    resolvers += Resolver.typesafeIvyRepo("releases")
   )
   .enablePlugins(SbtPlugin)
+
+lazy val tests = project
+  .dependsOn(interface)
+  .settings(
+    testFrameworks := List(new TestFramework("com.geirsson.junit.JUnitFramework")),
+    classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
+    libraryDependencies ++= List(
+      "org.scalatest" %% "scalatest" % "3.0.8",
+      "junit" % "junit" % "4.11"
+    )
+  )
+

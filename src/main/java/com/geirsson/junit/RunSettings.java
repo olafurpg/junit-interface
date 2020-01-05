@@ -3,9 +3,14 @@ package com.geirsson.junit;
 import static com.geirsson.junit.Ansi.ENAME1;
 import static com.geirsson.junit.Ansi.ENAME2;
 import static com.geirsson.junit.Ansi.ENAME3;
+import static com.geirsson.junit.Ansi.ERRMSG;
+import static com.geirsson.junit.Ansi.FAILURE1;
+import static com.geirsson.junit.Ansi.FAILURE2;
 import static com.geirsson.junit.Ansi.NNAME1;
 import static com.geirsson.junit.Ansi.NNAME2;
 import static com.geirsson.junit.Ansi.NNAME3;
+import static com.geirsson.junit.Ansi.SUCCESS1;
+import static com.geirsson.junit.Ansi.SUCCESS2;
 import static com.geirsson.junit.Ansi.c;
 
 import java.lang.reflect.Method;
@@ -13,10 +18,12 @@ import java.util.*;
 
 import org.junit.runner.Description;
 
+import sbt.testing.Status;
+
 class RunSettings {
   private static final Object NULL = new Object();
 
-  final boolean color, quiet, logAssert, logExceptionClass;
+  final boolean color, quiet, logAssert, logExceptionClass, useSbtLoggers;
   final Verbosity verbosity;
   final Summary summary;
   final ArrayList<String> globPatterns;
@@ -28,7 +35,7 @@ class RunSettings {
   private final HashSet<String> ignoreRunners = new HashSet<String>();
 
   RunSettings(boolean color, boolean decodeScalaNames, boolean quiet,
-              Verbosity verbosity, Summary summary, boolean logAssert, String ignoreRunners,
+              Verbosity verbosity, boolean useSbtLoggers, Summary summary, boolean logAssert, String ignoreRunners,
               boolean logExceptionClass,
               HashMap<String, String> sysprops,
               ArrayList<String> globPatterns,
@@ -48,6 +55,7 @@ class RunSettings {
     this.includeCategories = includeCategories;
     this.excludeCategories = excludeCategories;
     this.testFilter = testFilter;
+    this.useSbtLoggers = useSbtLoggers;
   }
 
   String decodeName(String name) {
@@ -71,12 +79,34 @@ class RunSettings {
     return buildColoredName(desc, NNAME1, NNAME2, NNAME3);
   }
 
+  String buildInfoName(Description desc, Status status) {
+    if (status == Status.Success) return buildSuccessName(desc);
+    else return buildInfoName(desc);
+  }
+
   String buildErrorName(Description desc) {
     return buildColoredName(desc, ENAME1, ENAME2, ENAME3);
   }
 
+  String buildErrorName(Description desc, Status status) {
+    if (status == Status.Failure) return buildColoredName(desc, FAILURE1, FAILURE2, FAILURE2);
+    else return buildErrorName(desc);
+  }
+
+  String buildSuccessName(Description desc) {
+    return buildColoredName(desc, SUCCESS1, SUCCESS2, SUCCESS2);
+  }
+
   String buildPlainName(Description desc) {
     return buildColoredName(desc, null, null, null);
+  }
+
+  String buildTestResult(boolean isSuccess) {
+    if (isSuccess) {
+      return c("+", SUCCESS1);
+    } else {
+      return c("X", ERRMSG);
+    }
   }
 
   String buildColoredMessage(Throwable t, String c1) {

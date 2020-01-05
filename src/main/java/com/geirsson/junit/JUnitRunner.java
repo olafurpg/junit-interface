@@ -24,9 +24,9 @@ final class JUnitRunner implements Runner {
     this.remoteArgs = remoteArgs;
     this.testClassLoader = testClassLoader;
 
-    boolean quiet = false, nocolor = false, decodeScalaNames = false,
-        logAssert = true, logExceptionClass = true;
-    RunSettings.Verbosity verbosity = RunSettings.Verbosity.TERSE;
+    boolean quiet = false, nocolor = false, decodeScalaNames = true,
+        logAssert = true, logExceptionClass = true, useSbtLoggers = false;
+    RunSettings.Verbosity verbosity = RunSettings.Verbosity.TEST_FINISHED;
     RunSettings.Summary summary = RunSettings.Summary.SBT;
     HashMap<String, String> sysprops = new HashMap<String, String>();
     ArrayList<String> globPatterns = new ArrayList<String>();
@@ -46,6 +46,8 @@ final class JUnitRunner implements Runner {
       else if("-s".equals(s)) decodeScalaNames = true;
       else if("-a".equals(s)) logAssert = true;
       else if("-c".equals(s)) logExceptionClass = false;
+      else if("+l".equals(s)) useSbtLoggers = true;
+      else if("-l".equals(s)) useSbtLoggers = false;
       else if(s.startsWith("--tests=")) testFilter = s.substring(8);
       else if(s.startsWith("--ignore-runners=")) ignoreRunners = s.substring(17);
       else if(s.startsWith("--run-listener=")) runListener = s.substring(15);
@@ -63,9 +65,10 @@ final class JUnitRunner implements Runner {
       else if("+s".equals(s)) decodeScalaNames = false;
       else if("+a".equals(s)) logAssert = false;
       else if("+c".equals(s)) logExceptionClass = true;
+      else if("+l".equals(s)) useSbtLoggers = true;
     }
     this.settings =
-      new RunSettings(!nocolor, decodeScalaNames, quiet, verbosity, summary, logAssert, ignoreRunners, logExceptionClass,
+      new RunSettings(!nocolor, decodeScalaNames, quiet, verbosity, useSbtLoggers, summary, logAssert, ignoreRunners, logExceptionClass,
         sysprops, globPatterns, includeCategories, excludeCategories,
         testFilter);
     this.runListener = createRunListener(runListener);
@@ -75,15 +78,26 @@ final class JUnitRunner implements Runner {
   @Override
   public Task[] tasks(TaskDef[] taskDefs) {
     used = true;
+    ScalatestComputer computer = new ScalatestComputer(testClassLoader);
     int length = taskDefs.length;
-    Task[] tasks = new Task[length];
+    List<Task> tasks = new ArrayList<>(taskDefs.length);
     for (int i = 0; i < length; i++) {
       TaskDef taskDef = taskDefs[i];
-      tasks[i] = new JUnitTask(this, settings, taskDef);
+      if (shouldRun(computer, taskDef)) {
+        tasks.add(new JUnitTask(this, settings, taskDef, computer));
+      }
     }
-    return tasks;
+    return tasks.toArray(new Task[0]);
   }
 
+  private boolean shouldRun(ScalatestComputer computer, TaskDef taskDef) {
+    try {
+      Class<?> cls = testClassLoader.loadClass(taskDef.fullyQualifiedName());
+      return !computer.isScalatestSuite(cls) || ScalatestFingerprint.isScalatest(taskDef.fingerprint());
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
+  }
   private RunListener createRunListener(String runListenerClassName) {
     if(runListenerClassName != null) {
       try {

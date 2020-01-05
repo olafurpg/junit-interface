@@ -3,8 +3,6 @@ package com.geirsson.junit;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.pantsbuild.tools.junit.impl.ConsoleRunnerImpl;
-
 import sbt.testing.EventHandler;
 import sbt.testing.Fingerprint;
 import sbt.testing.Framework;

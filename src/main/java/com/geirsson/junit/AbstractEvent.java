@@ -60,6 +60,6 @@ abstract class AbstractEvent implements Event
   }
 
   String durationToString() {
-    return duration / 1000.0 + " sec";
+    return duration / 1000.0 + "s";
   }
 }

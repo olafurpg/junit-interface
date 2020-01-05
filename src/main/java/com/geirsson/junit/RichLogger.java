@@ -28,16 +28,23 @@ final class RichLogger
 
   void debug(String s)
   {
-    for(Logger l : loggers)
+    // Disabled by default because debug logging is noisy and enabled by default in sbt.
+    if (settings.useSbtLoggers) {
+      for(Logger l : loggers)
       if(settings.color && l.ansiCodesSupported()) l.debug(s);
       else l.debug(filterAnsi(s));
+    }
   }
 
   void error(String s)
   {
-    for(Logger l : loggers)
-      if(settings.color && l.ansiCodesSupported()) l.error(s);
-      else l.error(filterAnsi(s));
+    if (settings.useSbtLoggers) {
+      for (Logger l : loggers)
+        if (settings.color && l.ansiCodesSupported()) l.error(s);
+        else l.error(filterAnsi(s));
+    } else {
+      System.out.println(s);
+    }
   }
 
   void error(String s, Throwable t)
@@ -48,16 +55,24 @@ final class RichLogger
 
   void info(String s)
   {
-    for(Logger l : loggers)
-      if(settings.color && l.ansiCodesSupported()) l.info(s);
-      else l.info(filterAnsi(s));
+    if (settings.useSbtLoggers) {
+      for (Logger l : loggers)
+        if (settings.color && l.ansiCodesSupported()) l.info(s);
+        else l.info(filterAnsi(s));
+    } else {
+      System.out.println(s);
+    }
   }
 
   void warn(String s)
   {
-    for(Logger l : loggers)
-      if(settings.color && l.ansiCodesSupported()) l.warn(s);
-      else l.warn(filterAnsi(s));
+    if (settings.useSbtLoggers) {
+      for (Logger l : loggers)
+        if (settings.color && l.ansiCodesSupported()) l.warn(s);
+        else l.warn(filterAnsi(s));
+    } else {
+      System.out.println(s);
+    }
   }
 
   private void logStackTrace(Throwable t)
