@@ -1,11 +1,20 @@
 package com.geirsson.junit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.runner.Computer;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
+import org.junit.runners.Suite;
+import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 
 public class JUnitComputer extends Computer {
@@ -32,6 +41,31 @@ public class JUnitComputer extends Computer {
       }
     }
     return Optional.empty();
+  }
+
+
+  private class MySuite extends Suite implements Filterable {
+    public MySuite(RunnerBuilder runnerBuilder, Class<?>[] classes) throws InitializationError {
+      super(runnerBuilder, classes);
+    }
+
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+      for (Runner r : super.getChildren()) {
+        filter.apply(r);
+      }
+    }
+  }
+
+  @Override
+  public Runner getSuite(RunnerBuilder builder, Class<?>[] classes) throws InitializationError {
+    RunnerBuilder runnerBuilder = new RunnerBuilder() {
+      @Override
+      public Runner runnerForClass(Class<?> testClass) throws Throwable {
+        return getRunner(builder, testClass);
+      }
+    };
+    return new MySuite(runnerBuilder, classes);
   }
 
   @Override

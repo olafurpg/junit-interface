@@ -26,6 +26,6 @@ class JUnitRunnerWrapper extends Runner implements Filterable {
 
     @Override
     public void filter(Filter filter) throws NoTestsRemainException {
-      if (!filter.shouldRun(getDescription())) throw new NoTestsRemainException();
+      filter.apply(delegate);
     }
   }

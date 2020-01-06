@@ -1,4 +1,4 @@
-package example.really.long.pack.name.yeah.sorry
+package example
 
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
@@ -7,16 +7,9 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ScalatestSuite extends FunSuite {
   test("basic") {
-    println("Hello world!")
+    println("basic")
   }
-  test("listener should never stop listening to awesome music") {
-    List(1, 2, 3, 4).map(_.to(100)).iterator.map(_.iterator.map {
-      case 44 => assert(false, 44)
-      case _ =>
-    }.toList).toList
-    val x = 42
-    val y = 43
-    assert(x == y )
-//    println("fail")
+  test("bar") {
+    println("bar")
   }
 }
