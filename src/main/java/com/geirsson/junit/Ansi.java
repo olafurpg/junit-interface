@@ -14,6 +14,7 @@ public class Ansi {
   private static final String CYAN = "\u001B[36m";
   private static final String WHITE = "\u001B[37m";
 
+  private static final String DARK_GREY = "\u001B[90m";
   private static final String LIGHT_RED = "\u001B[91m";
   private static final String LIGHT_GREEN = "\u001B[92m";
   private static final String LIGHT_YELLOW = "\u001B[93m";
@@ -47,19 +48,20 @@ public class Ansi {
   private Ansi() {}
 
   public static final String INFO = LIGHT_BLUE;
-  public static final String SUCCESS1 = LIGHT_GREEN;
-  public static final String SUCCESS2 = LIGHT_GREEN;
+  public static final String SKIPPED = YELLOW;
+  public static final String SUCCESS1 = GREEN;
+  public static final String SUCCESS2 = GREEN;
   public static final String ERRCOUNT = LIGHT_RED;
-  public static final String IGNCOUNT = LIGHT_YELLOW;
+  public static final String IGNCOUNT = YELLOW;
   public static final String ERRMSG = LIGHT_RED;
-  public static final String NNAME1 = LIGHT_YELLOW;
-  public static final String NNAME2 = LIGHT_CYAN;
-  public static final String NNAME3 = LIGHT_YELLOW;
-  public static final String ENAME1 = LIGHT_YELLOW;
+  public static final String NNAME1 = YELLOW;
+  public static final String NNAME2 = YELLOW;
+  public static final String NNAME3 = YELLOW;
+  public static final String ENAME1 = YELLOW;
   public static final String ENAME2 = LIGHT_RED;
-  public static final String ENAME3 = LIGHT_YELLOW;
+  public static final String ENAME3 = YELLOW;
   public static final String FAILURE1 = LIGHT_RED;
   public static final String FAILURE2 = LIGHT_RED;
   public static final String BOLD = HIGH_INTENSITY;
-  public static final String FAINT = LOW_INTESITY;
+  public static final String FAINT = DARK_GREY;
 }

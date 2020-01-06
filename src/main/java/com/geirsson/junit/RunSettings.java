@@ -9,6 +9,7 @@ import static com.geirsson.junit.Ansi.FAILURE2;
 import static com.geirsson.junit.Ansi.NNAME1;
 import static com.geirsson.junit.Ansi.NNAME2;
 import static com.geirsson.junit.Ansi.NNAME3;
+import static com.geirsson.junit.Ansi.SKIPPED;
 import static com.geirsson.junit.Ansi.SUCCESS1;
 import static com.geirsson.junit.Ansi.SUCCESS2;
 import static com.geirsson.junit.Ansi.c;
@@ -80,8 +81,15 @@ class RunSettings {
   }
 
   String buildInfoName(Description desc, Status status) {
-    if (status == Status.Success) return buildSuccessName(desc);
-    else return buildInfoName(desc);
+    switch (status) {
+      case Success:
+        return buildSuccessName(desc);
+      case Ignored:
+      case Skipped:
+        return buildSkippedName(desc);
+      default:
+        return buildInfoName(desc);
+    }
   }
 
   String buildErrorName(Description desc) {
@@ -89,24 +97,40 @@ class RunSettings {
   }
 
   String buildErrorName(Description desc, Status status) {
-    if (status == Status.Failure) return buildColoredName(desc, FAILURE1, FAILURE2, FAILURE2);
-    else return buildErrorName(desc);
+    switch (status) {
+      case Failure:
+        return buildColoredName(desc, FAILURE1, FAILURE2, FAILURE2);
+      case Skipped:
+      case Ignored:
+        return buildSkippedName(desc);
+      default:
+        return buildErrorName(desc);
+    }
   }
 
   String buildSuccessName(Description desc) {
     return buildColoredName(desc, SUCCESS1, SUCCESS2, SUCCESS2);
   }
 
+  String buildSkippedName(Description desc) {
+    return buildColoredName(desc, SKIPPED, SKIPPED, SKIPPED);
+  }
+
   String buildPlainName(Description desc) {
     return buildColoredName(desc, null, null, null);
   }
 
-  String buildTestResult(boolean isSuccess) {
-    if (isSuccess) {
-      return c("+", SUCCESS1);
-    } else {
-      return c("X", ERRMSG);
-    }
+  String buildTestResult(Status status) {
+    switch (status) {
+        case Success:
+          return c("==> + ", SUCCESS1);
+        case Ignored:
+          return c("==> i ", SKIPPED);
+        case Skipped:
+          return c("==> s ", SKIPPED);
+        default:
+          return c("==> X ", ERRMSG);
+      }
   }
 
   String buildColoredMessage(Throwable t, String c1) {
@@ -116,10 +140,6 @@ class RunSettings {
     b.append(decodeName(t.getClass().getName()));
     b.append(": ").append(t.getMessage());
     return b.toString();
-  }
-
-  String buildInfoMessage(Throwable t) {
-    return buildColoredMessage(t, NNAME2);
   }
 
   String buildErrorMessage(Throwable t) {

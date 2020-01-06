@@ -69,7 +69,7 @@ final class EventDispatcher extends RunListener
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Skipped) {
       void logTo(RichLogger logger) {
-        logger.warn("Test assumption in test "+ansiName+" failed: "+ansiMsg + durationSuffix());
+        logger.warn(settings.buildTestResult(Status.Skipped) + ansiName+" assumption failed: "+ansiMsg + durationSuffix(), failure.getException());
       }
     });
   }
@@ -87,7 +87,7 @@ final class EventDispatcher extends RunListener
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Failure) {
       void logTo(RichLogger logger) {
-        logger.error( settings.buildTestResult(false) + " "+ansiName+" "+ durationSuffix() + " " + ansiMsg, error);
+        logger.error( settings.buildTestResult(Status.Failure) +ansiName+" "+ durationSuffix() + " " + ansiMsg, error);
       }
     });
   }
@@ -120,7 +120,7 @@ final class EventDispatcher extends RunListener
     uncapture(false);
     postIfFirst(new InfoEvent(desc, Status.Success) {
       void logTo(RichLogger logger) {
-        debugOrInfo(settings.buildTestResult(true) + " "+ansiName + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
+        debugOrInfo(settings.buildTestResult(Status.Success) +ansiName + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
       }
     });
     logger.popCurrentTestClassName();
@@ -131,7 +131,7 @@ final class EventDispatcher extends RunListener
   {
     postIfFirst(new InfoEvent(desc, Status.Skipped) {
       void logTo(RichLogger logger) {
-        logger.info("Test "+ansiName+" ignored");
+        logger.warn(settings.buildTestResult(Status.Ignored) + ansiName+" ignored" + durationSuffix());
       }
     });
   }
@@ -141,7 +141,7 @@ final class EventDispatcher extends RunListener
   {
     recordStartTime(description);
     logger.pushCurrentTestClassName(description.getClassName());
-    debugOrInfo("Test " + settings.buildInfoName(description) + " started", RunSettings.Verbosity.STARTED);
+    debugOrInfo(settings.buildInfoName(description) + " started", RunSettings.Verbosity.STARTED);
     capture();
   }
 

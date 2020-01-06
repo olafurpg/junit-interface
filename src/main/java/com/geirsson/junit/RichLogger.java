@@ -86,6 +86,12 @@ final class RichLogger
     }
   }
 
+  void warn(String s, Throwable t)
+  {
+    warn(s);
+    if(t != null && (settings.logAssert || !(t instanceof AssertionError))) logStackTrace(t);
+  }
+
   private void logStackTrace(Throwable t)
   {
     StackTraceElement[] trace = t.getStackTrace();
