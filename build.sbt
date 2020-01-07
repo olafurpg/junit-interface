@@ -1,3 +1,4 @@
+def scala212 = "2.12.10"
 inThisBuild(
   List(
     organization := "com.geirsson",
@@ -14,11 +15,10 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    scalaVersion := "2.12.10"
+    scalaVersion := scala212,
+    crossScalaVersions := List(scala212)
   )
 )
-
-skip in publish := true
 
 lazy val interface = project
   .in(file("."))
