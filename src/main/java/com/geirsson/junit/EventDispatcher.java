@@ -21,6 +21,7 @@ final class EventDispatcher extends RunListener
 {
   private final RichLogger logger;
   private final Set<String> reported = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+  private final Set<String> reportedSuites = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
   private final ConcurrentHashMap<String, Long> startTimes = new ConcurrentHashMap<String, Long>();
   private final EventHandler handler;
   private final RunSettings settings;
@@ -136,10 +137,23 @@ final class EventDispatcher extends RunListener
     });
   }
 
+
+  @Override
+  public void testSuiteStarted(Description description)
+  {
+    if (description == null || description.getClassName() == null || description.getClassName().equals("null")) return;
+    reportedSuites.add(description.getClassName());
+    logger.info(c(description.getClassName() + ":", SUCCESS1));
+  }
+
+
   @Override
   public void testStarted(Description description)
   {
     recordStartTime(description);
+    if (reportedSuites.add(description.getClassName())) {
+      testSuiteStarted(description);
+    }
     logger.pushCurrentTestClassName(description.getClassName());
     debugOrInfo(settings.buildInfoName(description) + " started", RunSettings.Verbosity.STARTED);
     capture();

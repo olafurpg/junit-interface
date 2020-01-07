@@ -20,6 +20,8 @@ inThisBuild(
   )
 )
 
+lazy val junitVersion = "4.13"
+
 lazy val interface = project
   .in(file("."))
   .settings(
@@ -28,7 +30,7 @@ lazy val interface = project
     crossPaths := false,
     sbtPlugin := false,
     libraryDependencies ++= Seq(
-      "junit" % "junit" % "4.12",
+      "junit" % "junit" % junitVersion,
       "org.scala-sbt" % "test-interface" % "1.0"
     ),
     javacOptions in Compile ++= List("-target", "1.8", "-source", "1.8"),
@@ -50,7 +52,7 @@ lazy val tests = project
     classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     libraryDependencies ++= List(
       "org.scalatest" %% "scalatest" % "3.0.8",
-      "junit" % "junit" % "4.11"
+      "junit" % "junit" % junitVersion
     )
   )
 
