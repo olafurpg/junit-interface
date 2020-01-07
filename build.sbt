@@ -14,10 +14,12 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    version := "0.11.4",
     scalaVersion := "2.12.10"
   )
 )
+
+skip in publish := true
+
 lazy val interface = project
   .in(file("."))
   .settings(
@@ -43,6 +45,7 @@ lazy val interface = project
 lazy val tests = project
   .dependsOn(interface)
   .settings(
+    skip in publish := true,
     testFrameworks := List(new TestFramework("com.geirsson.junit.PantsFramework")),
     classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     libraryDependencies ++= List(
