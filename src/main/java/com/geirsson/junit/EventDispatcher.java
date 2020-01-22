@@ -121,7 +121,7 @@ final class EventDispatcher extends RunListener
     uncapture(false);
     postIfFirst(new InfoEvent(desc, Status.Success) {
       void logTo(RichLogger logger) {
-        debugOrInfo(settings.buildTestResult(Status.Success) +ansiName + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
+        debugOrInfo(settings.buildTestResult(Status.Success) +Ansi.c(desc.getMethodName(), SUCCESS1) + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
       }
     });
     logger.popCurrentTestClassName();
