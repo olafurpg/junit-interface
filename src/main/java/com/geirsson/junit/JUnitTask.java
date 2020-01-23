@@ -71,6 +71,9 @@ final class JUnitTask implements Task {
                 Categories.CategoryFilter.categoryFilter(true, loadClasses(runner.testClassLoader, settings.includeCategories), true,
                     loadClasses(runner.testClassLoader, settings.excludeCategories)));
           }
+          if(!settings.includeTags.isEmpty() || !settings.excludeTags.isEmpty()) {
+            request = new SilentFilterRequest(request, new TagFilter(settings.includeTags, settings.excludeTags));
+          }
           ju.run(request);
         }
       } catch(Exception ex) {

@@ -24,7 +24,12 @@ import sbt.testing.Status;
 class RunSettings {
   private static final Object NULL = new Object();
 
-  final boolean color, quiet, logAssert, logExceptionClass, useSbtLoggers;
+  final boolean color;
+  final boolean quiet;
+  final boolean logAssert;
+  final boolean logExceptionClass;
+  final Set<String> includeTags, excludeTags;
+  final boolean useSbtLoggers;
   final boolean verbose;
   final Summary summary;
   final ArrayList<String> globPatterns;
@@ -41,6 +46,7 @@ class RunSettings {
               HashMap<String, String> sysprops,
               ArrayList<String> globPatterns,
               Set<String> includeCategories, Set<String> excludeCategories,
+              Set<String> includeTags, Set<String> excludeTags,
               String testFilter) {
     this.color = color;
     this.decodeScalaNames = decodeScalaNames;
@@ -49,6 +55,8 @@ class RunSettings {
     this.summary = summary;
     this.logAssert = logAssert;
     this.logExceptionClass = logExceptionClass;
+    this.includeTags = includeTags;
+    this.excludeTags = excludeTags;
     for(String s : ignoreRunners.split(","))
       this.ignoreRunners.add(s.trim());
     this.sysprops = sysprops;

@@ -41,6 +41,8 @@ final class JUnitRunner implements Runner {
     ArrayList<String> globPatterns = new ArrayList<String>();
     Set<String> includeCategories = new HashSet<String>();
     Set<String> excludeCategories = new HashSet<String>();
+    Set<String> includeTags = new HashSet<String>();
+    Set<String> excludeTags = new HashSet<String>();
 
     String testFilter = "";
     String ignoreRunners = "org.junit.runners.Suite";
@@ -60,6 +62,8 @@ final class JUnitRunner implements Runner {
       else if(s.startsWith("--run-listener=")) runListener = s.substring(15);
       else if(s.startsWith("--include-categories=")) includeCategories.addAll(Arrays.asList(s.substring(21).split(",")));
       else if(s.startsWith("--exclude-categories=")) excludeCategories.addAll(Arrays.asList(s.substring(21).split(",")));
+      else if(s.startsWith("--include-tags=")) includeTags.addAll(Arrays.asList(s.substring("--include-tags=".length()).split(",")));
+      else if(s.startsWith("--exclude-tags=")) excludeTags.addAll(Arrays.asList(s.substring("--exclude-tags=".length()).split(",")));
       else if(s.startsWith("-D") && s.contains("=")) {
         int sep = s.indexOf('=');
         sysprops.put(s.substring(2, sep), s.substring(sep+1));
@@ -76,7 +80,7 @@ final class JUnitRunner implements Runner {
     }
     this.settings =
       new RunSettings(!nocolor, decodeScalaNames, quiet, verbose, useSbtLoggers, summary, logAssert, ignoreRunners, logExceptionClass,
-        sysprops, globPatterns, includeCategories, excludeCategories,
+        sysprops, globPatterns, includeCategories, excludeCategories, includeTags, excludeTags,
         testFilter);
     this.runListener = createRunListener(runListener);
     this.runStatistics = new RunStatistics(settings);
