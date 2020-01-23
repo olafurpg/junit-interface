@@ -33,9 +33,9 @@ final class JUnitRunner implements Runner {
     this.testClassLoader = testClassLoader;
     this.customRunners = customRunners;
 
-    boolean quiet = false, nocolor = false, decodeScalaNames = true,
+    boolean quiet = false, nocolor = false, decodeScalaNames = false,
         logAssert = true, logExceptionClass = true, useSbtLoggers = false;
-    RunSettings.Verbosity verbosity = RunSettings.Verbosity.TEST_FINISHED;
+    boolean verbose = false;
     RunSettings.Summary summary = RunSettings.Summary.SBT;
     HashMap<String, String> sysprops = new HashMap<String, String>();
     ArrayList<String> globPatterns = new ArrayList<String>();
@@ -47,9 +47,7 @@ final class JUnitRunner implements Runner {
     String runListener = null;
     for(String s : args) {
       if("-q".equals(s)) quiet = true;
-      else if("-v".equals(s)) verbosity = RunSettings.Verbosity.STARTED;
-      else if("+v".equals(s)) verbosity = RunSettings.Verbosity.TERSE;
-      else if(s.startsWith("--verbosity=")) verbosity = RunSettings.Verbosity.values()[Integer.parseInt(s.substring(12))];
+      else if("-v".equals(s) || "--verbose".equals(s)) verbose = true;
       else if(s.startsWith("--summary=")) summary = RunSettings.Summary.values()[Integer.parseInt(s.substring(10))];
       else if("-n".equals(s)) nocolor = true;
       else if("-s".equals(s)) decodeScalaNames = true;
@@ -77,7 +75,7 @@ final class JUnitRunner implements Runner {
       else if("+l".equals(s)) useSbtLoggers = true;
     }
     this.settings =
-      new RunSettings(!nocolor, decodeScalaNames, quiet, verbosity, useSbtLoggers, summary, logAssert, ignoreRunners, logExceptionClass,
+      new RunSettings(!nocolor, decodeScalaNames, quiet, verbose, useSbtLoggers, summary, logAssert, ignoreRunners, logExceptionClass,
         sysprops, globPatterns, includeCategories, excludeCategories,
         testFilter);
     this.runListener = createRunListener(runListener);

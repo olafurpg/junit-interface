@@ -25,7 +25,7 @@ class RunSettings {
   private static final Object NULL = new Object();
 
   final boolean color, quiet, logAssert, logExceptionClass, useSbtLoggers;
-  final Verbosity verbosity;
+  final boolean verbose;
   final Summary summary;
   final ArrayList<String> globPatterns;
   final Set<String> includeCategories, excludeCategories;
@@ -36,7 +36,7 @@ class RunSettings {
   private final HashSet<String> ignoreRunners = new HashSet<String>();
 
   RunSettings(boolean color, boolean decodeScalaNames, boolean quiet,
-              Verbosity verbosity, boolean useSbtLoggers, Summary summary, boolean logAssert, String ignoreRunners,
+              boolean verbose, boolean useSbtLoggers, Summary summary, boolean logAssert, String ignoreRunners,
               boolean logExceptionClass,
               HashMap<String, String> sysprops,
               ArrayList<String> globPatterns,
@@ -45,7 +45,7 @@ class RunSettings {
     this.color = color;
     this.decodeScalaNames = decodeScalaNames;
     this.quiet = quiet;
-    this.verbosity = verbosity;
+    this.verbose = verbose;
     this.summary = summary;
     this.logAssert = logAssert;
     this.logExceptionClass = logExceptionClass;
@@ -193,10 +193,6 @@ class RunSettings {
         }
       }
     }
-  }
-
-  static enum Verbosity {
-    TERSE, RUN_FINISHED, STARTED, TEST_FINISHED
   }
 
   static enum Summary {

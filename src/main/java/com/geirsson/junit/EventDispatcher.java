@@ -37,7 +37,7 @@ final class EventDispatcher extends RunListener
     this.handler = handler;
     this.settings = settings;
     this.fingerprint = fingerprint;
-    this.taskInfo = settings.buildInfoName(taskDescription);
+    this.taskInfo = settings.buildPlainName(taskDescription);
     this.runStatistics = runStatistics;
   }
 
@@ -70,7 +70,9 @@ final class EventDispatcher extends RunListener
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Skipped) {
       void logTo(RichLogger logger) {
-        logger.warn(settings.buildTestResult(Status.Skipped) + ansiName+" assumption failed: "+ansiMsg + durationSuffix(), failure.getException());
+        if (settings.verbose) {
+          logger.info(Ansi.c("==> i "  + failure.getDescription().getMethodName(), WARNMSG));
+        }
       }
     });
   }
@@ -93,27 +95,6 @@ final class EventDispatcher extends RunListener
     });
   }
 
-  // Removes stack trace elements that reference the reflective invocation in TestLauncher.
-  private static void trimStackTrace(Throwable ex, String fromClassName, String toClassName) {
-    Throwable cause = ex;
-    while (cause != null) {
-      StackTraceElement[] stackTrace = cause.getStackTrace();
-      int end = stackTrace.length - 1;
-      StackTraceElement last = stackTrace[end];
-      if (last.getClassName().equals(fromClassName)) {
-        for (int i = 0; end >= 0; end--) {
-          StackTraceElement e = stackTrace[end];
-          if (e.getClassName().equals(toClassName)) {
-            break;
-          }
-        }
-        StackTraceElement[] newStackTrace = Arrays.copyOfRange(stackTrace, 0, end + 1);
-        cause.setStackTrace(newStackTrace);
-      }
-      cause = cause.getCause();
-    }
-  }
-
 
   @Override
   public void testFinished(Description desc)
@@ -121,7 +102,7 @@ final class EventDispatcher extends RunListener
     uncapture(false);
     postIfFirst(new InfoEvent(desc, Status.Success) {
       void logTo(RichLogger logger) {
-        debugOrInfo(settings.buildTestResult(Status.Success) +Ansi.c(desc.getMethodName(), SUCCESS1) + durationSuffix(), RunSettings.Verbosity.TEST_FINISHED);
+        logger.info(settings.buildTestResult(Status.Success) +Ansi.c(desc.getMethodName(), SUCCESS1) + durationSuffix());
       }
     });
     logger.popCurrentTestClassName();
@@ -155,7 +136,9 @@ final class EventDispatcher extends RunListener
       testSuiteStarted(description);
     }
     logger.pushCurrentTestClassName(description.getClassName());
-    debugOrInfo(settings.buildInfoName(description) + " started", RunSettings.Verbosity.STARTED);
+    if (settings.verbose) {
+      logger.info(settings.buildPlainName(description) + " started");
+    }
     capture();
   }
 
@@ -175,26 +158,29 @@ final class EventDispatcher extends RunListener
   @Override
   public void testRunFinished(Result result)
   {
-    debugOrInfo(c("Test run ", INFO)+taskInfo+c(" finished: ", INFO)+
-      c(result.getFailureCount()+" failed", result.getFailureCount() > 0 ? ERRCOUNT : INFO)+
-      c(", ", INFO)+
-      c(result.getIgnoreCount()+" ignored", result.getIgnoreCount() > 0 ? IGNCOUNT : INFO)+
-      c(", "+result.getRunCount()+" total, "+(result.getRunTime()/1000.0)+"s", INFO), RunSettings.Verbosity.RUN_FINISHED);
+      if (settings.verbose) {
+        logger.info("Test run " +taskInfo+" finished: "+
+          result.getFailureCount()+" failed" +
+          ", " +
+          result.getIgnoreCount()+" ignored" +
+          ", "+result.getRunCount()+" total, "+(result.getRunTime()/1000.0)+"s") ;
+      }
     runStatistics.addTime(result.getRunTime());
   }
 
   @Override
   public void testRunStarted(Description description)
   {
-    debugOrInfo(c("Test run ", INFO)+taskInfo+c(" started", INFO), RunSettings.Verbosity.STARTED);
+      if (settings.verbose) {
+        logger.info(taskInfo + " started");
+      }
   }
 
   void testExecutionFailed(String testName, Throwable err)
   {
-    System.out.println("ERR: " + err);
-    post(new Event(Ansi.c(testName, Ansi.ERRMSG), settings.buildErrorMessage(err), Status.Error, 0l, err) {
+    post(new Event(Ansi.c(testName, Ansi.ERRMSG), settings.buildErrorMessage(err), Status.Error, 0L, err) {
       void logTo(RichLogger logger) {
-        logger.error("Execution of test "+ansiName+" failed: "+ansiMsg, error);
+        logger.error(ansiName+" failed: "+ansiMsg, error);
       }
     });
   }
@@ -235,9 +221,25 @@ final class EventDispatcher extends RunListener
     }
   }
 
-  private void debugOrInfo(String msg, RunSettings.Verbosity atVerbosity)
-  {
-    if(atVerbosity.ordinal() >= settings.verbosity.ordinal()) logger.info(msg);
-    else logger.debug(msg);
+
+  // Removes stack trace elements that reference the reflective invocation in TestLauncher.
+  private static void trimStackTrace(Throwable ex, String fromClassName, String toClassName) {
+    Throwable cause = ex;
+    while (cause != null) {
+      StackTraceElement[] stackTrace = cause.getStackTrace();
+      int end = stackTrace.length - 1;
+      StackTraceElement last = stackTrace[end];
+      if (last.getClassName().equals(fromClassName)) {
+        for (int i = 0; end >= 0; end--) {
+          StackTraceElement e = stackTrace[end];
+          if (e.getClassName().equals(toClassName)) {
+            break;
+          }
+        }
+        StackTraceElement[] newStackTrace = Arrays.copyOfRange(stackTrace, 0, end + 1);
+        cause.setStackTrace(newStackTrace);
+      }
+      cause = cause.getCause();
+    }
   }
 }

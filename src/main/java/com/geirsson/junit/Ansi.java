@@ -53,6 +53,7 @@ public class Ansi {
   public static final String SUCCESS2 = GREEN;
   public static final String ERRCOUNT = LIGHT_RED;
   public static final String IGNCOUNT = YELLOW;
+  public static final String WARNMSG = LIGHT_YELLOW;
   public static final String ERRMSG = LIGHT_RED;
   public static final String NNAME1 = YELLOW;
   public static final String NNAME2 = YELLOW;
