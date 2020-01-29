@@ -31,6 +31,7 @@ class RunSettings {
   final Set<String> includeTags, excludeTags;
   final boolean useSbtLoggers;
   final boolean verbose;
+  final boolean suppressSystemError;
   final Summary summary;
   final ArrayList<String> globPatterns;
   final Set<String> includeCategories, excludeCategories;
@@ -43,7 +44,7 @@ class RunSettings {
   RunSettings(boolean color, boolean decodeScalaNames, boolean quiet,
               boolean verbose, boolean useSbtLoggers, Summary summary, boolean logAssert, String ignoreRunners,
               boolean logExceptionClass,
-              HashMap<String, String> sysprops,
+              boolean suppressSystemError, HashMap<String, String> sysprops,
               ArrayList<String> globPatterns,
               Set<String> includeCategories, Set<String> excludeCategories,
               Set<String> includeTags, Set<String> excludeTags,
@@ -55,6 +56,7 @@ class RunSettings {
     this.summary = summary;
     this.logAssert = logAssert;
     this.logExceptionClass = logExceptionClass;
+    this.suppressSystemError = suppressSystemError;
     this.includeTags = includeTags;
     this.excludeTags = excludeTags;
     for(String s : ignoreRunners.split(","))

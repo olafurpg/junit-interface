@@ -31,18 +31,11 @@ public class PantsFramework extends JUnitFramework {
 
   @Override
   public sbt.testing.Runner runner(String[] args, String[] remoteArgs, ClassLoader testClassLoader) {
-    boolean isVerbose = false;
-    for (String arg : args) {
-      if (arg.equals("-v") || arg.equals("--verbose")) {
-        isVerbose = true;
-      }
-    }
-    if (!isVerbose) {
-      OutputStream out = new OutputStream() {
-        @Override public void write(int x) {}
-      };
-      System.setErr(new PrintStream(out));
-    }
-    return super.runner(args, remoteArgs, testClassLoader);
+    String[] newArgs = new String[args.length + 1];
+    // NOTE(olafur): by default, stderr is not printed when running tests. Users can still enable
+    // stderr by passing in the "--stderr" flag.
+    newArgs[0] = "--no-stderr";
+    System.arraycopy(args, 0, newArgs, 1, args.length);
+    return super.runner(newArgs, remoteArgs, testClassLoader);
   }
 }

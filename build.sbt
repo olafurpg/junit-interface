@@ -48,6 +48,7 @@ lazy val tests = project
   .dependsOn(interface)
   .settings(
     skip in publish := true,
+    fork := true,
     testFrameworks := List(new TestFramework("com.geirsson.junit.PantsFramework")),
     classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
     libraryDependencies ++= List(

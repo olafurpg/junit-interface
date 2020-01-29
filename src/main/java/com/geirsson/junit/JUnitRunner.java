@@ -36,6 +36,7 @@ final class JUnitRunner implements Runner {
     boolean quiet = false, nocolor = false, decodeScalaNames = false,
         logAssert = true, logExceptionClass = true, useSbtLoggers = false;
     boolean verbose = false;
+    boolean suppressSystemError = false;
     RunSettings.Summary summary = RunSettings.Summary.SBT;
     HashMap<String, String> sysprops = new HashMap<String, String>();
     ArrayList<String> globPatterns = new ArrayList<String>();
@@ -77,10 +78,12 @@ final class JUnitRunner implements Runner {
       else if("+a".equals(s)) logAssert = false;
       else if("+c".equals(s)) logExceptionClass = true;
       else if("+l".equals(s)) useSbtLoggers = true;
+      else if("--no-stderr".equals(s)) suppressSystemError = true;
+      else if("--stderr".equals(s)) suppressSystemError = false;
     }
     this.settings =
       new RunSettings(!nocolor, decodeScalaNames, quiet, verbose, useSbtLoggers, summary, logAssert, ignoreRunners, logExceptionClass,
-        sysprops, globPatterns, includeCategories, excludeCategories, includeTags, excludeTags,
+          suppressSystemError, sysprops, globPatterns, includeCategories, excludeCategories, includeTags, excludeTags,
         testFilter);
     this.runListener = createRunListener(runListener);
     this.runStatistics = new RunStatistics(settings);
