@@ -81,11 +81,15 @@ final class EventDispatcher extends RunListener
   public void testFailure(final Failure failure)
   {
     if (failure.getDescription() != null && failure.getDescription().getClassName() != null) {
-      trimStackTrace(
-          failure.getException(),
-          "java.lang.Thread",
-          failure.getDescription().getClassName()
-      );
+      try {
+        trimStackTrace(
+            failure.getException(),
+            "java.lang.Thread",
+            failure.getDescription().getClassName()
+        );
+      } catch (Throwable t) {
+        // Ignore error.
+      }
     }
     uncapture(true);
     postIfFirst(new ErrorEvent(failure, Status.Failure) {
@@ -227,17 +231,19 @@ final class EventDispatcher extends RunListener
     Throwable cause = ex;
     while (cause != null) {
       StackTraceElement[] stackTrace = cause.getStackTrace();
-      int end = stackTrace.length - 1;
-      StackTraceElement last = stackTrace[end];
-      if (last.getClassName().equals(fromClassName)) {
-        for (int i = 0; end >= 0; end--) {
-          StackTraceElement e = stackTrace[end];
-          if (e.getClassName().equals(toClassName)) {
-            break;
+      if (stackTrace != null && stackTrace.length > 0) {
+        int end = stackTrace.length - 1;
+        StackTraceElement last = stackTrace[end];
+        if (last.getClassName() != null && last.getClassName().equals(fromClassName)) {
+          for (int i = 0; end >= 0; end--) {
+            StackTraceElement e = stackTrace[end];
+            if (e.getClassName().equals(toClassName)) {
+              break;
+            }
           }
+          StackTraceElement[] newStackTrace = Arrays.copyOfRange(stackTrace, 0, end + 1);
+          cause.setStackTrace(newStackTrace);
         }
-        StackTraceElement[] newStackTrace = Arrays.copyOfRange(stackTrace, 0, end + 1);
-        cause.setStackTrace(newStackTrace);
       }
       cause = cause.getCause();
     }
